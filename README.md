@@ -35,10 +35,16 @@ module.exports = {
 };
 ```
 
-Now to run and update the gitHub pages use this command. This will create a new branch gh-pages hosting the dist files and showing them through their file destination.
-
-```bash
-run git add dist && git commit -m 'adding dist subtree'
-```
+Now to run and update the gitHub pages use this command. Add the dist changes and commit them into the subtree.
 
 Also we need that dist is not included in the .gitignore in the new branch created.
+
+```bash
+  git add dist && git commit -m 'adding dist subtree'
+```
+
+then we need to push the changes into the subtree try using:
+
+```bash 
+  git subtree push --prefix dist origin gh-pages
+```
