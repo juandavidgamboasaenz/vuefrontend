@@ -1,70 +1,87 @@
 <template>
-  <div id="app" class="container">
-    <div class="row">
-      <div class="col-md-6 offset-md-3 py-5">
-        <h1>Generate a thumbnail of a website</h1>
-
-        <form v-on:submit.prevent="makeWebSiteThumbnail">
-          <div class="form-group">
-            <input
-              v-model="websiteUrl"
-              type="text"
-              id="website-input"
-              placeholder="Enter a website"
-              class="form-control"
-            />
+  <div class="container">
+    <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
+      <div class="
+          d-flex
+          align-items-center
+          flex-shrink-0
+          p-3
+          link-dark
+          text-decoration-none
+          border-bottom
+        ">
+        <input class="fs-5 fw-semibold" v-model="username" />
+      </div>
+      <div class="list-group list-group-flush border-bottom scrollarea">
+        <div class="list-group-item list-group-item-action py-3 lh-sm" v-for="message in messages" :key="message">
+          <div class="d-flex w-100 align-items-center justify-content-between">
+            <strong class="mb-1">{{message.username}}</strong>
+            <small class="text-muted">Tues</small>
           </div>
-          <div class="form-group">
-            <button class="btn btn-primary">Generate!</button>
-          </div>
-          <img :src="thumbnailUrl" />
-        </form>
+          <div class="col-10 mb-1 small">{{message.messages}}</div>
+        </div>
       </div>
     </div>
+    <form @submit.prevent="submit">
+      <input class="form-control" placeholder="Write a message" />
+    </form>
   </div>
 </template>
 
 <script>
-import { post } from "axios";
+import { ref, onMounted } from "vue";
+import { Pusher } from "pusher-js";
 
 export default {
   name: "App",
-  data() {
-    return {
-      websiteUrl: "",
-      thumbnailUrl: "",
-    };
-  },
-  methods: {
-    async makeWebSiteThumbnail() {
-      post("https://shot.screenshotapi.net/screenshot", {
-        token: "WG6XHPG-56T4JGK-K1VDSQY-D5ETCYZ",
-        url: this.websiteUrl,
-        output: "json",
-      })
-        .then((response) => {
-          console.log("response.data");
+  setup() {
+    const username = ref('username');
+    const messages = ref([]);
+    const message = ref('')
 
-          console.log(response.data);
-          this.thumbnailUrl = response.data.screenshot;
+
+    onMounted(() => {
+      Pusher.logToConsole = true;
+
+      const pusher = new Pusher('239693854eda352ebf91', {
+        cluster: 'us2'
+      });
+      // This subscribe parameter is related to back end 
+      const channel = pusher.subscribe('chat');
+      //Also the message one
+      channel.bind('message', data => {
+        messages.value.push(data)
+        // app.messages.push(JSON.stringify(data));
+      });
+
+
+    })
+
+    const submit = async () => {
+      await fetch('http://localhost:8000/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.value,
+          message: message.value
         })
-        .catch((err) => {
-          window.alert(`The API returned an error: ${err}`);
-        });
+      })
 
-      console.log(`I should create a website thumbnail of ${this.websiteUrl}`);
-    },
-  },
-};
+      message.value = '';
+    }
+
+    return {
+      username,
+      messages,
+      message,
+      submit
+    }
+  }
+}
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.scrollarea {
+  min-height: 1000px;
 }
 </style>
