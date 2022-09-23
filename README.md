@@ -45,6 +45,6 @@ Also we need that dist is not included in the .gitignore in the new branch creat
 
 then we need to push the changes into the subtree try using:
 
-```bash 
+```bash
   git subtree push --prefix dist origin gh-pages
 ```

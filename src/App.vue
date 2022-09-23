@@ -17,6 +17,7 @@
           <div class="form-group">
             <button class="btn btn-primary">Generate!</button>
           </div>
+          <img :src="thumbnailUrl" />
         </form>
       </div>
     </div>
@@ -24,15 +25,33 @@
 </template>
 
 <script>
+import { post } from "axios";
+
 export default {
   name: "App",
   data() {
     return {
       websiteUrl: "",
+      thumbnailUrl: "",
     };
   },
   methods: {
-    makeWebSiteThumbnail() {
+    async makeWebSiteThumbnail() {
+      post("https://shot.screenshotapi.net/screenshot", {
+        token: "WG6XHPG-56T4JGK-K1VDSQY-D5ETCYZ",
+        url: this.websiteUrl,
+        output: "json",
+      })
+        .then((response) => {
+          console.log("response.data");
+
+          console.log(response.data);
+          this.thumbnailUrl = response.data.screenshot;
+        })
+        .catch((err) => {
+          window.alert(`The API returned an error: ${err}`);
+        });
+
       console.log(`I should create a website thumbnail of ${this.websiteUrl}`);
     },
   },
