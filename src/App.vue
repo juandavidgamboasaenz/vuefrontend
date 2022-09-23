@@ -1,62 +1,43 @@
 <template>
   <div class="container">
     <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white">
-      <div class="
-          d-flex
-          align-items-center
-          flex-shrink-0
-          p-3
-          link-dark
-          text-decoration-none
-          border-bottom
-        ">
+      <div class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
         <input class="fs-5 fw-semibold" v-model="username" />
       </div>
       <div class="list-group list-group-flush border-bottom scrollarea">
-        <div class="list-group-item list-group-item-action py-3 lh-sm" v-for="message in messages" :key="message">
+        <div class="list-group-item list-group-item-action py-3 lh-tight" v-for="message in messages" :key="message">
           <div class="d-flex w-100 align-items-center justify-content-between">
-            <strong class="mb-1">{{message.username}}</strong>
-            <small class="text-muted">Tues</small>
+            <strong class="mb-1">{{ message.username }}</strong>
           </div>
-          <div class="col-10 mb-1 small">{{message.messages}}</div>
+          <div class="col-10 mb-1 small">{{ message.message }}</div>
         </div>
       </div>
     </div>
     <form @submit.prevent="submit">
-      <input class="form-control" placeholder="Write a message" />
+      <input class="form-control" placeholder="Write a message" v-model="message" />
     </form>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
-import { Pusher } from "pusher-js";
-
+import { ref, onMounted } from 'vue';
+import Pusher from 'pusher-js';
 export default {
-  name: "App",
+  name: 'App',
   setup() {
     const username = ref('username');
     const messages = ref([]);
-    const message = ref('')
-
-
+    const message = ref('');
     onMounted(() => {
       Pusher.logToConsole = true;
-
       const pusher = new Pusher('239693854eda352ebf91', {
         cluster: 'us2'
       });
-      // This subscribe parameter is related to back end 
       const channel = pusher.subscribe('chat');
-      //Also the message one
       channel.bind('message', data => {
-        messages.value.push(data)
-        // app.messages.push(JSON.stringify(data));
+        messages.value.push(data);
       });
-
-
     })
-
     const submit = async () => {
       await fetch('http://localhost:8000/api/messages', {
         method: 'POST',
@@ -66,10 +47,8 @@ export default {
           message: message.value
         })
       })
-
       message.value = '';
     }
-
     return {
       username,
       messages,
@@ -82,6 +61,6 @@ export default {
 
 <style>
 .scrollarea {
-  min-height: 1000px;
+  min-height: 500px;
 }
 </style>
